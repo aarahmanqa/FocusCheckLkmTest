@@ -1,0 +1,66 @@
+plugins {
+    id 'java'
+    id 'io.qameta.allure' version '2.10.0'
+}
+
+allure {
+    setVersion("2.13.6")
+    adapter.aspectjWeaver
+    adapter.aspectjVersion
+}
+
+group 'com.ahamed'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+ext {
+    allureVersion = '2.24.0'
+}
+
+sourceCompatibility = '11'
+targetCompatibility = '11'
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+dependencies {
+    // Selenide Dependency
+    implementation 'com.codeborne:selenide-testng:6.17.0'
+
+    // TestNG Dependency
+    testImplementation 'org.testng:testng:7.8.0'
+
+    // WebDriverManager Dependency
+    implementation 'io.github.bonigarcia:webdrivermanager:5.6.2'
+//    implementation 'org.seleniumhq.selenium:selenium-java:4.27.0'
+//    implementation 'org.seleniumhq.selenium:selenium-devtools-v131:4.27.0'
+    implementation 'io.qameta.allure:allure-testng:2.29.1'
+    implementation 'io.qameta.allure:allure-selenide:2.24.0'
+}
+
+
+test {
+    useTestNG()
+    // Enable Allure results directory
+    systemProperty 'allure.results.directory', 'build/allure-results'
+}
+
+tasks.test {
+    finalizedBy 'allureReport'
+}
+
+tasks.register("allureReports", Exec) {
+    group = "verification"
+    description = "Generate Allure HTML report"
+    commandLine "allure", "generate", "build/allure-results", "-o", "build/allure-report", "--clean"
+}
+
+tasks.register("allureServes", Exec) {
+    group = "verification"
+    description = "Serve the Allure report"
+    commandLine "allure", "serve", "build/allure-results"
+}
