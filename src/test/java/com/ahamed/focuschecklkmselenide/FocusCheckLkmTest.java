@@ -16,23 +16,28 @@ public class FocusCheckLkmTest {
         SelenideLogger.addListener("allure", new AllureSelenide().screenshots(true).savePageSource(true));
         Selenide.open("https://focus-check-lkm-001.web.app/");
         WebDriverRunner.getWebDriver().manage().window().maximize();
-        Configuration.timeout = 3000;
+        Configuration.timeout = 4000;
 
         $x("//input[@placeholder='Your Name']").setValue("https://github.com/aarahmanqa");
         $(byText("Start Game")).click();
 
         while (true) {
-            SelenideElement numberToBeHitElement = $x("//li[contains(text(),'HIT ')]/span");
-            if (!numberToBeHitElement.exists()) {
-                break;
+            try {
+                SelenideElement numberToBeHitElement = $x("//li[contains(text(),'HIT ')]/span");
+                if (!numberToBeHitElement.exists()) {
+                    break;
+                }
+                String numberToBeHit = numberToBeHitElement.getText();
+                SelenideElement currentNumberElement = $x("//p[contains(@class,'text-black-900')][text()='" + numberToBeHit + "']");
+                if (!currentNumberElement.exists()) {
+                    break;
+                }
+                executeJavaScript("arguments[0].click();", currentNumberElement);
+            } catch (Exception ex) {
+                ex.printStackTrace();
             }
-            String numberToBeHit = numberToBeHitElement.getText();
-            SelenideElement currentNumberElement = $x("//p[contains(@class,'text-black-900')][text()='" + numberToBeHit + "']");
-            if (!currentNumberElement.exists()) {
-                break;
-            }
-            currentNumberElement.click();
         }
         System.out.println($(byText("score :")).getText());
+        screenshot("Final Score");
     }
 }
